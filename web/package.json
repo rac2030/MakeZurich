@@ -1,0 +1,30 @@
+{
+  "name": "makazurich",
+  "version": "1.0.0",
+  "description": "MakeZurich Hackathon",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rac2030/MakeZurich.git"
+  },
+  "keywords": [
+    "makezurich",
+    "hackathon",
+    "bike",
+    "commuter"
+  ],
+  "author": "Michel Rasic, Antonio Kumin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rac2030/MakeZurich/issues"
+  },
+  "homepage": "https://github.com/rac2030/MakeZurich#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.14.1",
+    "ttn": "^2.0.1"
+  }
+}
