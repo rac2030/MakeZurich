@@ -27,7 +27,7 @@ void loop()
   //Serial.print("Reading: ");
   Serial.print(difPressure);
   Serial.print("\n");
-  delay(3);
+  delay(5);
 }
 
 
