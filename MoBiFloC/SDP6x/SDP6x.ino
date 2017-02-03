@@ -14,6 +14,7 @@ float difPressure;
 
 void setup()
 {
+  Serial.print("Starting");
   Wire.begin();
   Serial.begin(9600);
   difPressure = 0.0;
@@ -21,11 +22,12 @@ void setup()
 
 void loop()
 {
-  Serial.print("Pressure Differential (Pa): ");
+  //Serial.print("Pressure Differential (Pa): ");
   difPressure = SDP6x.GetPressureDiff();
+  //Serial.print("Reading: ");
   Serial.print(difPressure);
   Serial.print("\n");
-  delay(1000);
+  delay(3);
 }
 
 

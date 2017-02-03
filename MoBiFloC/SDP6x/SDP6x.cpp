@@ -33,7 +33,7 @@
 #include "Arduino.h"
 #include "SDP6x.h"
 
-#define SCALEFACTOR 240.0
+#define SCALEFACTOR 60.0
 // NOTE you will need to change the SCALEFACTOR to the appropriate value for your sensor
 //  Don't forget the .0 at the end, it makes sure Arduino does not round the number
 // SENSOR       | SDP6xx-500Pa and SDP5xx  |  SDP6x0-125Pa  |  SDP6x0-25Pa  |
@@ -62,16 +62,18 @@ float SDP6xClass::GetPressureDiff(void)
 int16_t SDP6xClass::readSensor(uint8_t command)
 {
     int16_t result;
-
+    //Serial.print("[readSensor]");
     Wire.beginTransmission(eSDP6xAddress);  //begin
     Wire.write(command);          //send the pointer location
     delay(100);
     Wire.endTransmission();                 //end
 
     Wire.requestFrom(eSDP6xAddress, 3);
+    //Serial.print("[while wire start]");
     while(Wire.available() < 3) {
       ; //wait
     }
+    //Serial.print("[while wire end]");
 
     //Store the result
     result = ((Wire.read()) << 8);
