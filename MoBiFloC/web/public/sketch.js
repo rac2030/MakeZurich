@@ -1,4 +1,7 @@
 var socket;
+var monkeys = [];
+var toDispatch = 0;
+
 
 function setup() {
 
@@ -11,6 +14,7 @@ function setup() {
 	//event listener to receive from server
 	
 	createCanvas(600, 300);
+
 	
 	createP("");
 	createElement('textarea').id('loraLog').style('width','100%').style('height','100px')
@@ -22,22 +26,119 @@ function setup() {
 	socket.on( 'connect_failed', socketFailed);
 	socket.on( 'error', socketErr);
 	
-	socket.on("data", displayData);
+	socket.on("data", incomingData);
 	socket.on("messageCode", displayMessage);
 	
 }
 
 function draw() {
-	background(0);
+	// background(0);
+	background("#6ACAFC");
+	// image(monkeyGif, 0, 0,100,100);
+	// imageMode(CENTER);
+	// if (monkeyX > width - monkeyW/2) monkeyX = monkeyW/2 * -1;
+	// monkeyX++;
+	// xPos = 600-monkeyW - monkeyX;
+	// xPos = xPos + 150;
 	
+	for (var i = 0; i < monkeys.length; i++) {
+		monkeys[i].update();
+	}
+	
+	for (var i = monkeys.length-1; i >= 0; i--) {
+		if (monkeys[i].x > width) monkeys.splice(i,1);
+		
+	}
+	
+	// if (toDispatch > 0) {
+		// if (monkeys.length > 0) {
+			// if (monkeys[length].x > 100) {
+				// createMonkey();
+				// toDispatch--;
+			// }
+		// }
+		// else {
+			// createMonkey();
+			// toDispatch--;
+		// }
+	// }
 }
 
 
-var displayMessage = function (message) {
-	writeToTextArea("Message: "+JSON.stringify(message, null, 0));
+var incomingData = function (data) {
+	toDispatch = toDispatch + data.countBikes;
+	createMonkey();
+	
+	// dispatcher(data.countBikes);
+	displayData(data);
 }
 var displayData = function (data) {
 	writeToTextArea("Incoming data: "+JSON.stringify(data, null, 0));
+}
+var displayMessage = function (message) {
+	writeToTextArea("Message: "+JSON.stringify(message, null, 0));
+}
+
+var dispatcher = function (amount) {
+	for (i = 0; i < amount; i++) {
+		setTimeout(createMonkey,3000*i);		
+	}
+}
+
+var createMonkey = function() {
+	if (toDispatch > 0) {
+		monkey = new Monkey();
+		monkey.loadGif();
+		monkey.setCoord(0,random(0,height-150));
+		monkeys.push(monkey);
+		toDispatch = toDispatch - 1;
+	}
+}
+
+
+function Monkey () {
+	this.monkeyGif;
+	this.w = 100;
+	this.h = 100;
+	this.x = 0;
+	this.y = 0;
+	// this.isLoaded = false;
+	
+	this.loadGif = function () {
+		this.monkeyGif = loadGif('monkey.gif',this.initMonkey);
+		console.log("loading");
+	}
+	this.initMonkey = function () {
+		console.log("loaded");
+		setTimeout(createMonkey,2000);
+		console.log("to be dispatched: "+toDispatch);
+		// this.isLoaded = true;
+		// this.x = 600-this.w;
+		// this.y = 0;
+	}
+	
+	this.setCoord = function (x,y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	this.update = function () {
+		if (!this.monkeyGif.loaded()) return;
+		
+		// if (this.x > width - this.w/2) this.x = this.w/2 * -1;
+		this.x++;
+		var xPos = 600 - this.w - this.x;
+		var yPos = this.y + noise(this.x/100)*100; //adding perlin noise
+
+		push(); 
+		translate(this.monkeyGif.width,0); 
+		scale(-1.0,1.0); 
+		image(this.monkeyGif,xPos,yPos,this.w,this.h); 
+		pop();
+		
+		
+		
+	}
 }
 
 

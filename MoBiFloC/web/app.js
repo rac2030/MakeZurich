@@ -25,6 +25,19 @@ function newConnection (client) { //insert here all functions for a connection
 	});
 	
 	clients.push(client);
+	
+	
+	
+	
+	
+	// var messageObj = {
+		  // "countBikes": 3,
+		  // "temperature": 2,
+		  // "humidity": 3,
+		  // "avgSpeed": 4
+	  // };
+	// writeData(messageObj);
+	// client.emit("data",messageObj);
 
 }
 
@@ -68,7 +81,7 @@ client.on('device', null, 'down/scheduled', function(deviceId, data) {
 });
 
 client.on('message', function(deviceId, data) {
-  console.info('[INFO] ', 'Message:', deviceId, JSON.stringify(data, null, 2));
+  // console.info('[INFO] ', 'Message:', deviceId, JSON.stringify(data, null, 2));
   
   dataObj = data;
   bufferObj = new Buffer(data.payload_raw, 'hex')
@@ -152,17 +165,15 @@ firebase.auth().signInWithEmailAndPassword(fbEmail, fbPw).catch(function(error) 
 });
 
 
-function writePressureData(pressure) {
+function writeData(data) {
 	var unixtime = (new Date).getTime();
 	
 	// var newPostKey = firebase.database().ref().child('pressureData').child(hoseID).push().key // this creates a hash key
 	
-	var newPostKey = '/pressureData';
+	var newPostKey = '/data';
 	newPostKey += '/'+unixtime;
-	var postData = {
-		"pressure": pressure,
-		"unixtime": unixtime
-	};
+	var postData = data;
+	Object.assign(postData,{ "unixtime": unixtime });
 	
 	var updates = {};
 	updates[newPostKey] = postData;
