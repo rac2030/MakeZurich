@@ -2,9 +2,11 @@
 #include <SoftwareSerial.h>
 #include <Wire.h> // Needed for i2c
 #include "SDP6x.h" // Library to read from SDP610 differential presure sensor
+#include "SDP3x.h"
 #include "Adafruit_SHT31.h" // Library for temperature and humidity sensor
 
 float difPressure; // Variable that holds the last reading of the SDP610
+float difPressure3x;
 
 SoftwareSerial mySerial(7, 8); // RX, TX
 #define RST  2
@@ -47,7 +49,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Startup");
   setupRN2483();
-  setupSDP610();
+  setupSDPsensors();
   setupSHT31();
    
   led_off();
@@ -113,6 +115,7 @@ void finishReportingCycle() {
 void detectBicycle(){
   readPressure();
   debug("difPresure: " + String(difPressure));
+  debug("difPresure3x: " + String(difPressure3x));
   // Check if it is above the upper and below the lower treshold
   if(difPressure <= LOWER_TRESHOLD || UPPER_TRESHOLD <= difPressure){
     // TODO we might want to measure time to later calculate speed
@@ -139,11 +142,12 @@ void setupSHT31(){
   }
 }
 
-void setupSDP610(){
+void setupSDPsensors(){
   // Initialize I2C communication
   Wire.begin();
   // Set the starting value for the pressure difference to 0
   difPressure = 0.0;
+  difPressure3x = 0.0;
 }
 
 void setupRN2483(){
@@ -179,6 +183,7 @@ void setupRN2483(){
 
 void readPressure() {
   difPressure = SDP6x.GetPressureDiff();
+  difPressure3x = SDP3x.GetPressureDiff();
 }
 
 void led_on()
