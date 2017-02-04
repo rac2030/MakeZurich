@@ -1,33 +1,38 @@
-/*
-// This application uses express as its web server
-// for more info, see: http://expressjs.com
-require('dotenv').config({
-	path: "envVars.env"
-});
-var express = require('express');
-
-// create a new express server
+var port = 3000;
+var express = require("express");
 var app = express();
+var server = app.listen(port);
+app.use(express.static('public')); //makes the folder "public" be used in express
+console.log("connected via port "+port);
 
-// serve the files out of ./public as our main files
-app.use(express.static(__dirname + '/public'));
+// ######################
+// #### SOCKETS: I/O ####
+// ######################
 
-// get the app environment from Cloud Foundry
-var appEnv = cfenv.getAppEnv();
+var clients = [];
+var socket = require('socket.io');
+var io = socket(server);
+io.sockets.on('connection', newConnection); //event listener for a connection
 
-// start server on the specified port and binding host
-var server = app.listen(appEnv.port, '0.0.0.0', function () {
-		// print a message when the server starts listening
-		console.log("server starting on " + appEnv.url);
+
+function newConnection (client) { //insert here all functions for a connection
+	var newConfig = {};
+	console.log("new client connected: " +client.id);
+	
+	client.on("config", function (data) { 
+		this.newConfig = data;
+		console.log(JSON.stringify(this.newConfig, null, 2));
 	});
-*/	
+	
+	clients.push(client);
+
+}
 
 
 // #############################
 // ##### LORAWAN LISTENER ######
 // #############################
 
-var hoseMap = ["0004A30B001BB30C"]
 
 // TTN nodejs quickstart: https://www.thethingsnetwork.org/docs/applications/nodejs/quick-start.html
 	
@@ -37,6 +42,8 @@ var region = 'eu'; //based on ttn-handler-eu on https://console.thethingsnetwork
 var appId = 'makezurichrac'; //based on ApplicationID on https://console.thethingsnetwork.org/applications/makezurichrac
 var accessKey = 'ttn-account-v2.ncRUxO-qisIjcjtpuBOHcJG-SpZmKbMKIDoILHAk-zY'; //based on default key on https://console.thethingsnetwork.org/applications/makezurichrac
 
+var dataObj = {};
+var bufferObj = {};
 
     // options.username = appId;
     // options.password = appAccessKey;
@@ -63,7 +70,38 @@ client.on('device', null, 'down/scheduled', function(deviceId, data) {
 client.on('message', function(deviceId, data) {
   console.info('[INFO] ', 'Message:', deviceId, JSON.stringify(data, null, 2));
   
-  var hoseId = hoseMap.indexOf(data.hardware_serial);
+  dataObj = data;
+  bufferObj = new Buffer(data.payload_raw, 'hex')
+  
+  var message_s = bufferObj.toString('ascii');
+  console.log(message_s);
+  
+  
+  
+  if (message_s.charAt(0) == "m") {
+	  for (var i = 0; i < clients.length; i++) {
+		  var thisClient = clients[i];
+			thisClient.emit("messageCode",message_s);
+	  }
+  }
+  else {
+
+	  var data_a = message_s.split(";");
+	  
+	  var messageObj = {
+		  "countBikes": data_a[0],
+		  "temperature": data_a[1],
+		  "humidity": data_a[2],
+		  "avgSpeed": data_a[3]
+	  }
+	  console.log(JSON.stringify(messageObj, null, 2));
+	  
+	  for (var i = 0; i < clients.length; i++) {
+		  var thisClient = clients[i];
+			thisClient.emit("data",messageObj);
+	  }
+  }
+
   //var pressure = isPropertyOf(data.payload_raw.data[0];
   //writePressureData(hoseId, pressure);
 });
@@ -114,13 +152,12 @@ firebase.auth().signInWithEmailAndPassword(fbEmail, fbPw).catch(function(error) 
 });
 
 
-function writePressureData(hoseID, pressure) {
+function writePressureData(pressure) {
 	var unixtime = (new Date).getTime();
 	
 	// var newPostKey = firebase.database().ref().child('pressureData').child(hoseID).push().key // this creates a hash key
 	
-	var newPostKey = 'hose'+hoseID;
-	newPostKey += '/pressureData';
+	var newPostKey = '/pressureData';
 	newPostKey += '/'+unixtime;
 	var postData = {
 		"pressure": pressure,
@@ -133,7 +170,7 @@ function writePressureData(hoseID, pressure) {
 	return firebase.database().ref().update(updates);
 }
 
-function readPressureData(hoseID, unixtimeStart, unixtimeEnd) {
+function readPressureData(unixtimeStart, unixtimeEnd) {
 	var pressureDataRef = firebase.database().ref('/pressureData').orderByChild('starCount');
     // [END top_posts_query]
     Promise.all([pressureDataRef.once('value')]).then(function(resp) {
@@ -154,8 +191,6 @@ firebase.auth().signOut().then(function() {
   // An error happened.
 });
 */
-
-
 
 // ##########################
 // ##### MISCELLANEOUS ######
