@@ -21,7 +21,7 @@ void setup()
 
 void loop()
 {
-  Serial.print("Pressure Differential (Pa): ");
+  //Serial.print("Pressure Differential (Pa): ");
   difPressure = SDP6x.GetPressureDiff();
   //Serial.print("Reading: ");
   Serial.print(difPressure);

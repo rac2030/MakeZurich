@@ -64,8 +64,8 @@ client.on('message', function(deviceId, data) {
   console.info('[INFO] ', 'Message:', deviceId, JSON.stringify(data, null, 2));
   
   var hoseId = hoseMap.indexOf(data.hardware_serial);
-  var pressure = payload_raw.data[0];
-  writePressureData(hoseId, pressure);
+  //var pressure = isPropertyOf(data.payload_raw.data[0];
+  //writePressureData(hoseId, pressure);
 });
 
 client.on('message', null, 'led', function(deviceId, led) {
