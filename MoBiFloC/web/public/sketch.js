@@ -1,6 +1,7 @@
 var socket;
 var monkeys = [];
 var toDispatch = 0;
+var credits = false;
 
 
 function setup() {
@@ -13,7 +14,7 @@ function setup() {
 	
 	//event listener to receive from server
 	
-	createCanvas(600, 300);
+	createCanvas(800, 400);
 
 	
 	createP("");
@@ -32,8 +33,14 @@ function setup() {
 }
 
 function draw() {
+	
 	// background(0);
 	background("#6ACAFC");
+	
+	
+	
+	
+	
 	// image(monkeyGif, 0, 0,100,100);
 	// imageMode(CENTER);
 	// if (monkeyX > width - monkeyW/2) monkeyX = monkeyW/2 * -1;
@@ -62,6 +69,16 @@ function draw() {
 			// toDispatch--;
 		// }
 	// }
+	
+	
+	
+	if (credits)  {
+		textSize(32);
+		text("Michel Racic, m@rac.su",50,50);
+		text("Antonio Kümin, tony@kumin.ch",50,150);
+	}
+	
+	
 }
 
 
