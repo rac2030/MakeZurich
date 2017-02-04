@@ -2,6 +2,7 @@
 #include <SoftwareSerial.h>
 #include <Wire.h> // Needed for i2c
 #include "SDP6x.h" // Library to read from SDP610 differential presure sensor
+#include "Adafruit_SHT31.h" // Library for temperature and humidity sensor
 
 float difPressure; // Variable that holds the last reading of the SDP610
 
@@ -30,6 +31,8 @@ long cycleDuration = 60000; // 1 minute (only for PoC, should be 10 minutes late
 // Here we load it to be used, this file is kept out of GIT as its the private parts
 #include "TTNCredentials.h"
 
+Adafruit_SHT31 sht31 = Adafruit_SHT31();
+
 // Debugging options
 #define debug FALSE
 
@@ -46,6 +49,7 @@ void setup() {
 
   setupRN2483();
   setupSDP610();
+  setupSHT31();
    
   led_off();
   delay(2000);
@@ -87,14 +91,15 @@ void cycleEndCheck() {
 
 void finishReportingCycle() {
   //TODO implement
-  // Datastructure: Count;Temparature;Humidity;GPS
+  // Datastructure: Count;Temparature;Humidity;Average Speed
   // TODO GPS, for now we leave it out
   String gpspos = "Unknown";
   // TODO get temp and humidity
-  long temparature = 0;
-  long humidity = 0;
+  float temparature = sht31.readTemperature();
+  float humidity = sht31.readHumidity();
+  float averageSpeed = 0.0;
   // Send message
-  String msg = String(bikeCount) + ";" + String(temparature, DEC) + ";" + String(humidity, DEC) + ";" + gpspos;
+  String msg = String(bikeCount) + ";" + String(temparature, DEC) + ";" + String(humidity, DEC) + ";" + String(averageSpeed);
   Serial.println("Transmitting [" + msg + "]");
   myLora.txUncnf(msg); // non blocking call
   // Reset cylce
@@ -123,6 +128,13 @@ void detectBicycle(){
     led_off();
     // Take a break before continuing counting
     delay(COUNTING_PAUSE_TIME);
+  }
+}
+
+void setupSHT31(){
+  if (! sht31.begin(0x44)) {   // Set to 0x45 for alternate i2c addr
+    Serial.println("Couldn't find SHT31");
+    while (1) delay(1);
   }
 }
 
