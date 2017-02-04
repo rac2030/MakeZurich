@@ -4,12 +4,12 @@
 SoftwareSerial mySerial(7, 8); // RX, TX
 #define RST  2
 
-// Copy the following lines from TTN Console -> Devices -> Overview tab -> "EXAMPLE CODE"
-// You need to create an application first, then add a device 
-// (run this code once and it prints the EUID which you can enter)
-const char *devAddr = "xxxxxxxxxxxxx";
-const char *nwkSKey = "xxxxxxxxxxxxx";
-const char *appSKey = "xxxxxxxxxxxxx";
+
+// README FIRST:
+// Rename or copy the File TTNCredentials.h.editme and remove the .editme ending.
+// Edit it it accordingly and put your TTN keys in there, make sure you add it to git ignores.
+// Here we load it to be used, this file is kept out of GIT as its the private parts
+#include "TTNCredentials.h"
 
 rn2xx3 myLora(mySerial);
 
