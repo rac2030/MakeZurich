@@ -46,7 +46,6 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   Serial.println("Startup");
-
   setupRN2483();
   setupSDP610();
   setupSHT31();
@@ -54,7 +53,9 @@ void setup() {
   led_off();
   delay(2000);
   startReportingCycle();
-}
+  
+  myLora.txUncnf("mRqCnfgSetup");
+  }
 
 // Just for testing the snippet I used to send a float
 // static uint8_t floatdata[] = { 0,0,0,0,0,0,0,0};
